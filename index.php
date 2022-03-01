@@ -1,9 +1,11 @@
 <?php
-use metaxiii\sudokuSolver\Autoloader;
 
-require 'controller/list.php';
-require 'model/Autoloader.php';
+    use metaxiii\sudokuSolver\Autoloader;
 
-Autoloader::register();
+    require 'controller/list.php';
+    require 'model/Autoloader.php';
 
-require "controller/routes.php";
+    Autoloader::register();
+
+    require "controller/routes.php";
+

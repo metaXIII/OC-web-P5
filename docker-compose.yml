@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  db:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: sudokusolver
+      MYSQL_PASSWORD: password
+      MYSQL_USER: user
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./resources/data:/docker-entrypoint-initdb.d/
+  web:
+    build: .
+    container_name: php_web
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html

@@ -1,6 +1,6 @@
 <?php
-checkPostSudoku();
-require "public/include/head.php";
+    checkPostSudoku();
+    require "public/include/head.php";
 ?>
 
 <main role="main" class="main">
@@ -50,24 +50,24 @@ require "public/include/head.php";
     </section>
 
     <?php
-//    $db = \metaxiii\sudokuSolver\Database::getPdo();
-//    $query = "SELECT grid_content from grid where id = 1";
-//    $result = $db->query($query);
-//    $result = $result->fetch();
-//    $arr = unserialize($result['grid_content']);
+        //    $db = \metaxiii\sudokuSolver\Database::getPdo();
+        //    $query = "SELECT grid_content from grid where id = 1";
+        //    $result = $db->query($query);
+        //    $result = $result->fetch();
+        //    $arr = unserialize($result['grid_content']);
 
-//    var_dump($arr);
+        //    var_dump($arr);
     ?>
 
 </main>
 
 <script src="public/js/carousel.js"></script>
 <?php require "public/include/footer.php";
-//        $toData = serialize($array);
-//        $db = Database::getPdo();
-//        $query = $db->prepare("INSERT INTO grid (grid_content) VALUES (:array)");
-//        $query->bindValue(':array', $toData, PDO::PARAM_STR);
-//        $query->execute();
+    //        $toData = serialize($array);
+    //        $db = Database::getPdo();
+    //        $query = $db->prepare("INSERT INTO grid (grid_content) VALUES (:array)");
+    //        $query->bindValue(':array', $toData, PDO::PARAM_STR);
+    //        $query->execute();
 
 ?>
 
