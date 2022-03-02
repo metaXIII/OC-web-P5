@@ -4,7 +4,9 @@
 
     class UserDAO {
 
-        protected $db;
+        private $db;
+        private $username = ':username';
+        private $location = 'location:';
 
         public function __construct() {
             $this->db = Database::getPdo();
@@ -15,42 +17,39 @@
             $password = sha1($data['password']);
             $query = "SELECT * FROM user WHERE username = :username AND password = :password";
             $req = $this->db->prepare($query);
-            $req->bindValue(':username', $name);
+
+            $req->bindValue($this->username, $name);
             $req->bindValue(':password', $password);
             $req->execute();
             if ($req->rowCount()) {
                 $user = new User($name);
-                setFlash("Bonjour $name", "success");
+                setFlash("Bonjour " . $user->getUsername(), "success");
                 $_SESSION['Auth'] = $req->fetch()['id'];
-                header('location: ' . ROOT . 'admin');
-                die();
+                header($this->location . ROOT . 'admin');
             } else {
                 setFlash("Mauvaise combinaison username / password", "danger");
-                header('location: ' . ROOT . 'login');
-                die();
+                header($this->location . ROOT . 'login');
             }
+            die();
         }
 
         public function exist(array $data = null) {
             $name = $data['username'];
-            $query = "SELECT * FROM user WHERE username = :username";
+            $query = "SELECT * FROM user WHERE username = $this->username";
             $req = $this->db->prepare($query);
-            $req->bindValue(':username', $name);
+            $req->bindValue($this->username, $name);
             $req->execute();
             return $req->rowCount();
         }
 
         public function create($data = null) {
-            $username = '';
-            $password = '';
-            extract($data);
-            $query = "INSERT INTO user (username, password) VALUES (:username, :password)";
+            $query = "INSERT INTO user (username, password) VALUES ($this->username, :password)";
             $req = $this->db->prepare($query);
-            $req->bindValue(':username', $username);
-            $req->bindValue(':password', sha1($password));
+            $req->bindValue($this->username, $data["username"]);
+            $req->bindValue(':password', sha1($data["password"]));
             $req->execute();
             $_SESSION['Auth'] = $this->db->lastInsertId();
-            header('location: ' . ROOT . 'admin');
+            header($this->location . ROOT . 'admin');
             die();
         }
     }
