@@ -1,3 +1,3 @@
 <?php
-unset($_SESSION['Auth']);
-header("Location: " . ROOT);
+    unset($_SESSION['Auth']);
+    header("Location: " . ROOT);

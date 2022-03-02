@@ -3,7 +3,7 @@
     namespace metaxiii\sudokuSolver;
 
 
-    class sudoku {
+    class Sudoku {
         private $gridToSave = array();
         private $grid_start = array();
         private $column_start = array();
@@ -21,25 +21,9 @@
         private function setGrid() {
             $grille = array();
             foreach ($this->grid_start as $key => $row) {
-                if ($key <= 2) {
-                    $row_number = 1;
-                }
-                if ($key > 2 && $key <= 5) {
-                    $row_number = 2;
-                }
-                if ($key > 5 && $key <= 8) {
-                    $row_number = 3;
-                }
+                $row_number = $this->getRow_number($key);
                 foreach ($row as $column => $value) {
-                    if ($column <= 2) {
-                        $col_num = 1;
-                    }
-                    if ($column > 2 && $column <= 5) {
-                        $col_num = 2;
-                    }
-                    if ($column > 5 && $column <= 8) {
-                        $col_num = 3;
-                    }
+                    $col_num = $this->getRow_number($column);
                     $grille[$row_number][$col_num][] = $value;
                 }
             }
@@ -62,24 +46,8 @@
 
         private function getPossibilities($rows, $column) {
             $values = array();
-            if ($rows <= 2) {
-                $row_number = 1;
-            }
-            if ($rows > 2 && $rows <= 5) {
-                $row_number = 2;
-            }
-            if ($rows > 5 && $rows <= 8) {
-                $row_number = 3;
-            }
-            if ($column <= 2) {
-                $col_num = 1;
-            }
-            if ($column > 2 && $column <= 5) {
-                $col_num = 2;
-            }
-            if ($column > 5 && $column <= 8) {
-                $col_num = 3;
-            }
+            $row_number = $this->getRow_number($rows);
+            $col_num = $this->getRow_number($column);
             for ($n = 1; $n <= 9; $n++) {
                 if (!in_array($n, $this->grid_start[$rows])
                     && !in_array($n, $this->column_start[$column + 1])
@@ -185,5 +153,18 @@
                     $query->execute();
                 }
             }
+        }
+
+        private function getRow_number(int|string $key): int {
+            if ($key <= 2) {
+                $row_number = 1;
+            }
+            if ($key > 2 && $key <= 5) {
+                $row_number = 2;
+            }
+            if ($key > 5 && $key <= 8) {
+                $row_number = 3;
+            }
+            return $row_number;
         }
     }

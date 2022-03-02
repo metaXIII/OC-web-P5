@@ -181,6 +181,7 @@ footer {
 .bloc {
     min-height: 200px;
 }
+
 .bloc > span {
     margin-top: 75px;
     display: block;

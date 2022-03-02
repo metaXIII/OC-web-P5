@@ -46,7 +46,7 @@
     }
 
     function signIn(array $data = null) {
-        checkPostUser("new");
+        checkPostUser($data);
     }
 
     function isAdmin($data) {

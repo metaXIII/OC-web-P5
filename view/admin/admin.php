@@ -1,5 +1,5 @@
 <?php
-require "public/include/head.php";
+    require "public/include/head.php";
 ?>
 
     <div class="container mt-5 pt-5">
@@ -14,4 +14,4 @@ require "public/include/head.php";
     </div>
 
 <?php
-require "public/include/footer.php";
+    require "public/include/footer.php";

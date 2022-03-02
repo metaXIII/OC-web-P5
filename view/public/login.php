@@ -1,7 +1,7 @@
 <?php
-$_SESSION['Auth'] = 0;
-checkPostUser();
-require "public/include/head.php";
+    $_SESSION['Auth'] = 0;
+    checkPostUser();
+    require "public/include/head.php";
 ?>
 
 
@@ -20,4 +20,4 @@ require "public/include/head.php";
         </form>
     </div>
 <?php
-require "public/include/footer.php";
+    require "public/include/footer.php";

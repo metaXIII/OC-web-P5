@@ -113,30 +113,8 @@ function loadCarousel() {
             this.moveCallbacks = []
             this.offset = 0
             let animate = null
-
-            //Modification du DOM
-            this.root = this.createDivWithClass('carousel')
-            this.container = this.createDivWithClass('carousel__container')
-            this.root.setAttribute('tabindex', '0')
-            this.root.appendChild(this.container)
-            this.element.appendChild(this.root)
-            this.items = children.map((child) => {
-                let item = this.createDivWithClass('carousel__item')
-                item.appendChild(child)
-                return item
-            })
-            if (this.options.infinite) {
-                this.offset = this.options.slidesVisible + this.options.slidesToScroll
-                if (this.offset > children.length) {
-                    console.error("Vous n'avez pas assez d'éléments dans le caroussel", element)
-                }
-                this.items = [
-                    ...this.items.slice(this.items.length - this.offset).map(item => item.cloneNode(true)),
-                    ...this.items,
-                    ...this.items.slice(0, this.offset).map(item => item.cloneNode(true)),
-                ]
-                this.goToItem(this.offset, false)
-            }
+            this.createDOM(children);
+            this.controlInfinite(children, element);
             this.items.forEach(item => this.container.appendChild(item))
             this.setStyle()
             if (this.options.navigation === true) {
@@ -160,7 +138,6 @@ function loadCarousel() {
             })
             if (this.options.infinite)
                 this.container.addEventListener('transitionend', this.resetInfinite.bind(this))
-            new CarouselTouchPlugin(this)
             let pause = document.getElementById("pause")
             pause.addEventListener("click", () => {
                 if (this.options.autoSlide === true) {
@@ -176,6 +153,35 @@ function loadCarousel() {
                     pause.classList.add("fa-pause-circle")
                     pause.classList.remove("fa-play-circle")
                 }
+            })
+        }
+
+        controlInfinite(children, element) {
+            if (this.options.infinite) {
+                this.offset = this.options.slidesVisible + this.options.slidesToScroll
+                if (this.offset > children.length) {
+                    console.error("Vous n'avez pas assez d'éléments dans le caroussel", element)
+                }
+                this.items = [
+                    ...this.items.slice(this.items.length - this.offset).map(item => item.cloneNode(true)),
+                    ...this.items,
+                    ...this.items.slice(0, this.offset).map(item => item.cloneNode(true)),
+                ]
+                this.goToItem(this.offset, false)
+            }
+        }
+
+        createDOM(children) {
+            //Modification du DOM
+            this.root = this.createDivWithClass('carousel')
+            this.container = this.createDivWithClass('carousel__container')
+            this.root.setAttribute('tabindex', '0')
+            this.root.appendChild(this.container)
+            this.element.appendChild(this.root)
+            this.items = children.map((child) => {
+                let item = this.createDivWithClass('carousel__item')
+                item.appendChild(child)
+                return item
             })
         }
 
@@ -215,14 +221,12 @@ function loadCarousel() {
             this.onMove(index => {
                 if (index === 0) {
                     prevButton.classList.add('carousel__prev--hidden')
-                }
-                else {
+                } else {
                     prevButton.classList.remove('carousel__prev--hidden')
                 }
                 if (this.items[this.currentItem + this.slidesVisible] === undefined) {
                     nextButton.classList.add('carousel__next--hidden')
-                }
-                else {
+                } else {
                     nextButton.classList.remove('carousel__next--hidden')
                 }
             })
@@ -293,23 +297,20 @@ function loadCarousel() {
             if (index < 0) {
                 if (this.options.loop) {
                     index = this.items.length - this.options.slidesVisible
-                }
-                else {
+                } else {
                     return
                 }
             } else if (index >= this.items.length || (this.items[this.currentItem + this.slidesVisible] === undefined
                 && index > this.currentItem)) {
                 if (this.options.loop) {
                     index = 0
-                }
-                else
+                } else
                     return
             }
             let translateX = index * -100 / this.items.length
             if (animation === false)
                 this.disableTransition()
             this.translate(translateX)
-            this.container.offsetHeight // force le navigateur à faire un repeint
             if (animation === false) {
                 this.enableTransition()
             }
@@ -390,14 +391,6 @@ function loadCarousel() {
             return this.root.offsetWidth
         }
     }
-
-    //Création du Carousel
-    new Carousel(document.querySelector('#carousel'), {
-        slidesToScroll: 1,
-        pagination: true,
-        infinite: true,
-        autoSlide: false
-    })
 }
 
 
