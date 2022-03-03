@@ -26,6 +26,8 @@
                         <li class="p-1">
                             <a class="nav-item text-white" href='<?= ROOT ?>logout'>Se déconnecter</a>
                         </li>
+
+
                         <?php
                     } else {
                         ?>
