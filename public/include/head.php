@@ -9,9 +9,7 @@
         <link rel="stylesheet" href="<?= ROOT ?>vendor/css/bootstrap.min.css" type="text/css">
         <link rel="stylesheet" href="<?= ROOT ?>public/css/style.css" type="text/css">
     </head>
-
     <body>
-
         <header>
             <nav class="navbar navbar-dark bg-dark">
                 <ul class="nav">
