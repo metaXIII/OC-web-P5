@@ -11,7 +11,7 @@
         echo "<h2 class='text-center'>Nouvelle grille</h2>";
         getSudokuGrid(-1);
         echo $closing_div;
-        echo "<button class='btn btn-primary mt-2'>Résoudre</button>";
+        echo "<button class='btn btn-primary mt-2'>Insérer</button>";
     } else {
         echo "<h2 class='text-center'>Jouer</h2>";
         getSudokuGrid(0);

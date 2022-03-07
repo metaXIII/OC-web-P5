@@ -1,6 +1,8 @@
 <?php
 
     use metaxiii\sudokuSolver\Router;
+    use metaxiii\sudokuSolver\RouterException;
+
 
     function checkUserConnected(): void {
         if (!userIsConnected()) {
@@ -58,4 +60,8 @@
         include "view/public/error404.php";
     });
 
-    $router->run();
+    try {
+        $router->run();
+    } catch (RouterException $e) {
+        print($e->getMessage());
+    }

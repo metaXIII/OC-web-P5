@@ -160,19 +160,34 @@ footer {
 
 .sudoku__number {
     margin: 0;
+    border: 1px solid;
     float: left;
     padding: 0 0 0 15px;
-    border: 1px solid;
     width: 42px;
+    height: 35px;
     border-collapse: collapse;
 }
 
+.sudoku__number:nth-child(3n + 3) {
+    border-right: 2px solid;
+}
+
+.sudoku__number:first-child {
+    border-left: 2px solid;
+}
+
 .sudoku__row {
-    border: 2px solid;
-    width: 130px;
     flex-wrap: wrap;
     border-collapse: collapse;
 }
+
+.sudoku__row:nth-child(3n + 3) {
+    border-bottom: 2px solid;
+}
+.sudoku__row:first-child {
+    border-top: 2px solid;
+}
+
 
 .red {
     color: #ff0000;
