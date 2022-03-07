@@ -1,6 +1,6 @@
 # Blog
 
-Sudoku solver in PHP - (doesn't work)
+Sudoku solver in PHP
 
 ### Docker-compose
 
