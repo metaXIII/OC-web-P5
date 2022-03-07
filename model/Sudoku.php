@@ -4,135 +4,16 @@
 
 
     class Sudoku {
-        private $gridToSave = array();
-        private $grid_start = array();
-        private $column_start = array();
-        private $grille = array();
+        private array $grid;
         private $time = array();
-        private $canBeSolve = true;
-        private $protection = true;
-        protected $db;
+        private $db;
+        private array $gridToSave;
 
-        public function __construct() {
+        public function __construct(array $grid) {
             $this->db = Database::getPdo();
+            $this->grid = $grid;
+            $this->gridToSave = $grid;
             $this->time['start'] = microtime(true);
-        }
-
-        private function setGrid() {
-            $grille = array();
-            foreach ($this->grid_start as $key => $row) {
-                $row_number = $this->getRow_number($key);
-                foreach ($row as $column => $value) {
-                    $col_num = $this->getRow_number($column);
-                    $grille[$row_number][$col_num][] = $value;
-                }
-            }
-            $this->grille = $grille;
-        }
-
-        private function setColumns() {
-            $column_start = array();
-            $i = 1;
-            foreach ($this->grid_start as $key => $row) {
-                $j = 1;
-                foreach ($row as $kk => $value) {
-                    $column_start[$j][$i] = $value;
-                    $j++;
-                }
-                $i++;
-            }
-            $this->column_start = $column_start;
-        }
-
-        private function getPossibilities($rows, $column) {
-            $values = array();
-            $row_number = $this->getRow_number($rows);
-            $col_num = $this->getRow_number($column);
-            for ($n = 1; $n <= 9; $n++) {
-                if (!in_array($n, $this->grid_start[$rows])
-                    && !in_array($n, $this->column_start[$column + 1])
-                    && !in_array($n, $this->grille[$row_number][$col_num])) {
-                    $values[] = $n;
-                }
-                if (empty($values)) {
-                    if (!in_array($n, $this->grid_start[$rows])
-                        && !in_array($n, $this->grille[$row_number][$col_num])) {
-                        $values[] = $n;
-                    }
-                }
-            }
-            return $values;
-        }
-
-        public function solve($array) {
-            if ($this->protection) {
-                $this->gridToSave = $array;
-                $this->protection = false;
-            }
-            while (true) {
-                $this->grid_start = $array;
-                $this->setColumns();
-                $this->setGrid();
-                $replace_values = array();
-                foreach ($array as $key => $row) {
-                    foreach ($row as $column => $value) {
-                        if ($value == 0) {
-                            $possible_values = $this->getPossibilities($key, $column);
-                            $replace_values[] = array(
-                                'row' => $key,
-                                'column' => $column,
-                                'possibleValues' => $possible_values
-                            );
-                        }
-                    }
-                }
-                if (empty($replace_values)) {
-                    return $array;
-                }
-                usort($replace_values, array($this, 'Alea'));
-                if (count($replace_values[0]['possibleValues']) == 1) {
-                    $array[$replace_values[0]['row']][$replace_values[0]['column']] = current($replace_values[0]['possibleValues']);
-                    continue;
-                }
-                foreach ($replace_values[0]['possibleValues'] as $value) {
-                    $tmp = $array;
-                    $tmp[$replace_values[0]['row']][$replace_values[0]['column']] = $value;
-                    if ($result = $this->solve($tmp)) {
-                        return $this->solve($tmp);
-                    }
-                }
-                return false;
-            }
-            return false;
-        }
-
-        private function Alea($a, $b) {
-            $a = count($a['possibleValues']);
-            $b = count($b['possibleValues']);
-            if ($a == $b) {
-                return 0;
-            }
-            return ($a < $b) ? -1 : 1;
-        }
-
-        public function getResult() {
-            foreach ($this->grid_start as $key => $row) {
-                foreach ($row as $colonne => $value) {
-                    echo $value . ' ';
-                }
-                echo "<br>";
-            }
-        }
-
-        public function getResultDebug() {
-            foreach ($this->grid_start as $key => $row) {
-                foreach ($row as $position => $value) {
-                    if ($value == 0) {
-                        $this->canBeSolve = false;
-                    }
-                    setFlashSudoku($value, $key, $position);
-                }
-            }
         }
 
         public function __destruct() {
@@ -140,31 +21,99 @@
             $time = $this->time['end'] - $this->time['start'];
             showScore(number_format($time, 4) . " sec");
             setFlashsudokuTime("Temps d\'exécution : " . number_format($time, 4) . " sec");
-            if ($this->canBeSolve && isset($_SESSION['Auth']) && isAdmin($_SESSION['Auth'])) {
-                $toData = serialize($this->gridToSave);
-                $query = $this->db->prepare("SELECT * from grid WHERE grid_content = :toData");
+            if ($this->solve($this->grid, sizeof($this->grid)) && isset($_SESSION['Auth']) && isAdmin($_SESSION['Auth'])) {
+                $toData = serialize($this->grid);
+                $query = $this->db->prepare("SELECT * from sudokusolver.grid WHERE grid_content = :toData");
                 $query->bindValue(':toData', $toData, \PDO::PARAM_STR);
                 $query->execute();
                 if ($query->rowCount()) {
                     return;
                 } else {
-                    $query = $this->db->prepare("INSERT INTO grid (grid_content) VALUES (:array)");
-                    $query->bindValue(':array', $toData, \PDO::PARAM_STR);
+                    $query = $this->db->prepare("INSERT INTO sudokusolver.grid (grid_content) VALUES (:array)");
+                    $query->bindValue(':array', serialize($this->gridToSave), \PDO::PARAM_STR);
                     $query->execute();
                 }
             }
         }
 
-        private function getRow_number(int|string $key): int {
-            if ($key <= 2) {
-                $row_number = 1;
+        public function solve(array $grid, int $length): bool {
+            $isEmpty = true;
+            $this->printDebug();
+            for ($i = 0; $i < $length; $i++) {
+                for ($j = 0; $j < $length; $j++) {
+                    if ($grid[$i][$j] == 0) {
+                        $row = $i;
+                        $col = $j;
+                        $isEmpty = false;
+                        break;
+                    }
+                }
+                if (!$isEmpty) {
+                    break;
+                }
             }
-            if ($key > 2 && $key <= 5) {
-                $row_number = 2;
+            if ($isEmpty) {
+                return true;
             }
-            if ($key > 5 && $key <= 8) {
-                $row_number = 3;
+            for ($num = 1; $num <= $length; $num++) {
+                if ($this->isSafe($grid, $row, $col, $num)) {
+                    $grid[$row][$col] = $num;
+                    $this->grid[$row][$col] = $num;
+                    if (self::solve($grid, $length)) {
+                        return true;
+                    } else {
+                        $grid[$row][$col] = 0;
+                        $this->grid[$row][$col] = 0;
+                    }
+                }
             }
-            return $row_number;
+            return false;
+        }
+
+        private function isSafe(array $grid, int $row, int $col, int $num): bool {
+            for ($i = 0; $i < sizeof($grid); $i++) {
+                if ($grid[$row][$i] == $num) {
+                    return false;
+                }
+            }
+            for ($i = 0; $i < sizeof($grid); $i++) {
+                if ($grid[$i][$col] == $num) {
+                    return false;
+                }
+            }
+            $sqrt = sqrt(sizeof($grid));
+            $boxRowStart = $row - $row % $sqrt;
+            $boxColStart = $col - $col % $sqrt;
+            for ($i = $boxRowStart; $i < $boxRowStart + $sqrt; $i++) {
+                for ($j = $boxColStart; $j < $boxColStart + $sqrt; $j++) {
+                    if ($grid[$i][$j] == $num) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public function print() {
+            $length = sizeof($this->grid);
+            for ($i = 0; $i < $length; $i++) {
+                for ($j = 0; $j < $length; $j++) {
+                    setFlashSudoku($this->grid[$i][$j], $i, $j);
+                }
+            }
+        }
+
+        public function printDebug() {
+//            $length = sizeof($this->grid);
+//            for ($i = 0; $i < $length; $i++) {
+//                for ($j = 0; $j < $length; $j++) {
+//                    echo $this->grid[$i][$j] . " ";
+//                }
+//                echo "<br>";
+//                if (($i + 1) % (int)sqrt($length) == 0) {
+//                    echo "";
+//                }
+//            }
+//            echo "<br>";
         }
     }

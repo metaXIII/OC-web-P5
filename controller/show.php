@@ -17,19 +17,6 @@ if (document.readyState === 'loading') {
 </script>";
     }
 
-    function setFlashSudokuWrong() {
-        echo "
-<script>
-    function message()
-    {
-        document.getElementById('alert_Sudoku').innerText = 'Malheureusement le sudoku est trop complexe et a trop d\'inconnu :/';
-    }
-    if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', message)
-} else {message()}
-
-</script>";
-    }
 
     function setFlashSudokuTime($message) {
         echo "<script>
@@ -63,11 +50,11 @@ if (document.readyState === 'loading') {
             $sixth = array_slice($array, 45, 9);
             $seventh = array_slice($array, 54, 9);
             $eight = array_slice($array, 63, 9);
-            $nineth = array_slice($array, 72, 9);
-            $array = [$first, $second, $third, $fourth, $fifth, $sixth, $seventh, $eight, $nineth];
-            $game = new Sudoku();
-            $game->solve($array);
-            $game->getResultDebug();
+            $ninth = array_slice($array, 72, 9);
+            $array = [$first, $second, $third, $fourth, $fifth, $sixth, $seventh, $eight, $ninth];
+            $game = new Sudoku($array);
+            $game->solve($array, sizeof($array));
+            $game->print();
         }
     }
 
