@@ -1,6 +1,6 @@
-# Blog
+# Sudoku Solver
 
-Sudoku solver in PHP
+Sudoku solver written in PHP
 
 ### Docker-compose
 

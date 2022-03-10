@@ -12,6 +12,7 @@ services:
     volumes:
       - ./resources/data:/docker-entrypoint-initdb.d/
   web:
+    container_name: sudoku-solver-php
     build: .
     depends_on:
       - db

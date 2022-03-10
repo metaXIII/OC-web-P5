@@ -16,7 +16,7 @@
 
             if (self::$pdo === null) {
                 try {
-                    self::$pdo = new PDO("mysql:host=$hostname.;dbname=$dbname;charset=$charset",
+                    self::$pdo = new PDO("mysql:host=$hostname;dbname=$dbname;charset=$charset",
                         $username, $password);
                     self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 } catch (\Exception $e) {
