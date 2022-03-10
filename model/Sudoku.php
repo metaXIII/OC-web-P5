@@ -18,17 +18,15 @@
 
         public function __destruct() {
             $this->time['end'] = microtime(true);
-            $time = $this->time['end'] - $this->time['start'];
-            showScore(number_format($time, 4) . " sec");
-            setFlashsudokuTime("Temps d\'exécution : " . number_format($time, 4) . " sec");
-            if ($this->solve($this->grid, sizeof($this->grid)) && isset($_SESSION['Auth']) && isAdmin($_SESSION['Auth'])) {
+            $duration = $this->time['end'] - $this->time['start'];
+            showScore(number_format($duration, 4) . " sec");
+            setFlashsudokuTime("Temps d\'exécution : " . number_format($duration, 4) . " sec");
+            if ($this->solve($this->grid, sizeof($this->grid))) {
                 $toData = serialize($this->grid);
                 $query = $this->db->prepare("SELECT * from sudokusolver.grid WHERE grid_content = :toData");
                 $query->bindValue(':toData', $toData, \PDO::PARAM_STR);
                 $query->execute();
-                if ($query->rowCount()) {
-                    return;
-                } else {
+                if (!$query->rowCount()) {
                     $query = $this->db->prepare("INSERT INTO sudokusolver.grid (grid_content) VALUES (:array)");
                     $query->bindValue(':array', serialize($this->gridToSave), \PDO::PARAM_STR);
                     $query->execute();
@@ -38,20 +36,7 @@
 
         public function solve(array $grid, int $length): bool {
             $isEmpty = true;
-            $this->printDebug();
-            for ($i = 0; $i < $length; $i++) {
-                for ($j = 0; $j < $length; $j++) {
-                    if ($grid[$i][$j] == 0) {
-                        $row = $i;
-                        $col = $j;
-                        $isEmpty = false;
-                        break;
-                    }
-                }
-                if (!$isEmpty) {
-                    break;
-                }
-            }
+            list($row, $col, $isEmpty) = $this->findIfContainsZero($length, $grid, $isEmpty);
             if ($isEmpty) {
                 return true;
             }
@@ -72,12 +57,7 @@
 
         private function isSafe(array $grid, int $row, int $col, int $num): bool {
             for ($i = 0; $i < sizeof($grid); $i++) {
-                if ($grid[$row][$i] == $num) {
-                    return false;
-                }
-            }
-            for ($i = 0; $i < sizeof($grid); $i++) {
-                if ($grid[$i][$col] == $num) {
+                if (($grid[$row][$i] == $num) || ($grid[$i][$col] == $num)) {
                     return false;
                 }
             }
@@ -103,17 +83,22 @@
             }
         }
 
-        public function printDebug() {
-//            $length = sizeof($this->grid);
-//            for ($i = 0; $i < $length; $i++) {
-//                for ($j = 0; $j < $length; $j++) {
-//                    echo $this->grid[$i][$j] . " ";
-//                }
-//                echo "<br>";
-//                if (($i + 1) % (int)sqrt($length) == 0) {
-//                    echo "";
-//                }
-//            }
-//            echo "<br>";
+        private function findIfContainsZero(int $length, array $grid, bool $isEmpty): array {
+            $row = null;
+            $col = null;
+            for ($i = 0; $i < $length; $i++) {
+                for ($j = 0; $j < $length; $j++) {
+                    if ($grid[$i][$j] == 0) {
+                        $row = $i;
+                        $col = $j;
+                        $isEmpty = false;
+                        break;
+                    }
+                }
+                if (!$isEmpty) {
+                    break;
+                }
+            }
+            return array($row, $col, $isEmpty);
         }
     }
